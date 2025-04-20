@@ -2,68 +2,54 @@ import os
 import time
 import random
 import csv
+import pickle
 import undetected_chromedriver as uc
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-from selenium_stealth import stealth
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
 SEARCH_QUERY = "software developer"
 SEARCH_LOCATION = "remote"
 URL = f"https://www.indeed.com/jobs?q={SEARCH_QUERY}&l={SEARCH_LOCATION}&start="
-MAX_NEW = 500
+MAX_NEW = 10
 RESULTS_PER_PAGE = 10
 SCRAPED_FILE = "scraped_jobs.txt"
 OUTPUT_CSV = "jobs.csv"
+COOKIE_FILE = "cookies.pkl"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; rv:112.0) Gecko/20100101 Firefox/112.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 12.3; rv:112.0) Gecko/20100101 Firefox/112.0"
-]
-
-PROXIES = [
-
-    "http://mveselinovic858:KHuSyWq2gx@161.77.143.186:50100",
-
-
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 ]
 
 # ─── HELPERS ────────────────────────────────────────────────────────────────────
 
 
-def get_random_proxy():
-    return random.choice(PROXIES)
-
-
-def init_driver(use_proxy=False):
+def init_driver():
     opts = uc.ChromeOptions()
     opts.add_argument("--disable-gpu")
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-blink-features=AutomationControlled")
     opts.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
-
-    if use_proxy:
-        proxy = get_random_proxy()
-        opts.add_argument(f"--proxy-server={proxy}")
-        print(f"\U0001F6E1️ Using proxy: {proxy}")
-
     driver = uc.Chrome(options=opts)
-
-    stealth(driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-            )
-
     return driver
+
+
+def save_cookies(driver, path):
+    with open(path, "wb") as f:
+        pickle.dump(driver.get_cookies(), f)
+
+
+def load_cookies(driver, path):
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            cookies = pickle.load(f)
+            for cookie in cookies:
+                driver.add_cookie(cookie)
 
 
 def load_scraped_urls():
@@ -97,24 +83,32 @@ def main():
     new_count = 0
     page = 0
 
+    driver = init_driver()
+    driver.get("https://www.indeed.com/")
+
+    if not os.path.exists(COOKIE_FILE):
+        print("\n🚨 Please solve CAPTCHA manually if it appears.")
+        print("🔐 After solving, press ENTER here to save cookies and continue...")
+        input()
+        save_cookies(driver, COOKIE_FILE)
+    else:
+        driver.get("https://www.indeed.com/")
+        load_cookies(driver, COOKIE_FILE)
+        driver.refresh()
+
     while new_count < MAX_NEW:
         start = page * RESULTS_PER_PAGE
-        driver = init_driver(use_proxy=True)
         driver.get(f"{URL}{start}")
 
         try:
-            WebDriverWait(driver, 30).until(
+            WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "a.tapItem"))
             )
         except:
-            print("No job cards found; stopping.")
-            driver.quit()
+            print("❌ No job cards found; stopping.")
             break
 
-        driver.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(random.uniform(1, 2))
-
+        time.sleep(random.uniform(1.5, 3))
         cards = driver.find_elements(By.CSS_SELECTOR, "a.tapItem")
         for card in cards:
             if new_count >= MAX_NEW:
@@ -144,8 +138,6 @@ def main():
                 driver.back()
                 continue
 
-            time.sleep(random.uniform(1, 2))
-
             soup = BeautifulSoup(driver.page_source, "html.parser")
             desc_div = soup.find("div", id="jobDescriptionText")
             if not desc_div or "remote" not in desc_div.get_text().lower():
@@ -159,15 +151,15 @@ def main():
             new_count += 1
             print(f"[{new_count}/{MAX_NEW}] {title} @ {company}")
 
-            time.sleep(random.uniform(1, 2))
+            time.sleep(random.uniform(2, 4))
             driver.back()
             time.sleep(random.uniform(1, 2))
 
-        driver.quit()
         page += 1
-        time.sleep(random.uniform(2, 4))
+        time.sleep(random.uniform(3, 5))
 
-    print(f"Done: scraped {new_count} new remote jobs.")
+    print(f"\n✅ Done: scraped {new_count} new remote jobs.")
+    driver.quit()
 
 
 if __name__ == "__main__":
