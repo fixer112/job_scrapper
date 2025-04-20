@@ -7,7 +7,7 @@ with open("jobs.json", "r", encoding="utf-8") as json_file:
 
 # Define CSV file and fieldnames
 with open("jobs.csv", "w", newline="", encoding="utf-8") as csv_file:
-    fieldnames = ["id", "title", "company", "description", "url", "file_url"]
+    fieldnames = ["title", "company", "description", "url", "file_url"]
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
     writer.writeheader()
@@ -17,10 +17,9 @@ with open("jobs.csv", "w", newline="", encoding="utf-8") as csv_file:
             print(f"Skipping job {uid} due to missing URL or file URL.")
             continue
         writer.writerow({
-            "id": uid,
             "title": job.get("title", ""),
             "company": job.get("company", ""),
-            # "description": job.get("description", ""),
+            "description": job.get("description", "").strip().replace("\n", "")[:100],
             "url": job.get("url", ""),
             "file_url": job.get("file_url", "")
         })

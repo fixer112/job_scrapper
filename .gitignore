@@ -1,8 +1,7 @@
 .venv
-jobs.csv
 scraped_jobs.txt
 get-pip.py
-service_account.json
-profile.json
 .env
-jobs.json
+*jobs*
+*.csv
+*.json
