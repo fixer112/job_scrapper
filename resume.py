@@ -12,7 +12,8 @@ from docx import Document
 import os
 import uuid
 import mistune
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Tag
+from bs4.element import NavigableString
 from docx.document import Document as DocumentObject
 
 # Load environment variables
@@ -40,6 +41,8 @@ with open('profile.json') as f:
 
 def markdown_to_text(md_string):
     html = mistune.markdown(md_string)
+    if not isinstance(html, str):
+        html = str(html)
     return BeautifulSoup(html, "html.parser").get_text()
 
 
