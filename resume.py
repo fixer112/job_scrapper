@@ -335,7 +335,7 @@ _Repeat as needed for each role._
 
 
 def main():
-    start_id = "b01153ff-fa37-4092-9e27-d5293ff91480"
+    start_id = None
 
     end_id = None
 

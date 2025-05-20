@@ -1,0 +1,173 @@
+{
+  "name": "John Doe",
+  "email": "test@mail.com",
+  "phone": "+234 123 456 7890",
+  "github": "https://github.com/test",
+  "linkedin": "https://linkedin.com/in/test",
+  "education": {
+    "degree": "Bachelor\u2019s Degree",
+    "from": "May 2011",
+    "to": "Jan 2017"
+  },
+  "professional_summary": "A seasoned Backend Developer with over 9 years of experience in software engineering, infrastructure design, and deployment automation. Recognized for building robust systems and scalable solutions that power high-availability platforms. Abubakar is currently leading backend infrastructure at MehticTech, where he has architected a streamlined technical ecosystem using Enterprise GitHub, Linear for project management, and AWS Lambda for deployment automation. Known for deep expertise in PHP, Laravel, and the LAMP stack, he also demonstrates strong leadership capabilities, consistently mentoring teams and driving projects to success.\nHis work spans across multiple domains, from building alumni networks to launching coworking workspaces in underserved regions, showcasing a blend of technical prowess, business acumen, and a vision for community empowerment.",
+  "technical_skills": {
+    "languages_frameworks": [
+      "PHP",
+      "Laravel",
+      "JavaScript",
+      "SQL",
+      "HTML/CSS"
+    ],
+    "backend_technologies": [
+      "LAMP stack",
+      "RESTful APIs",
+      "OAuth",
+      "JWT"
+    ],
+    "mobile_development_integration": [
+      "Laravel-powered backends for Android and Flutter apps"
+    ],
+    "tools_devops": [
+      "Git",
+      "GitHub Enterprise",
+      "Docker",
+      "CI/CD pipelines",
+      "GitHub Actions",
+      "AWS Lambda"
+    ],
+    "infrastructure_cloud": [
+      "AWS (EC2, S3, RDS, IAM, API Gateway, CloudWatch)",
+      "Linux servers",
+      "Nginx",
+      "Apache"
+    ],
+    "devops_skills": {
+      "cloud_infrastructure": {
+        "provider": "AWS",
+        "services": [
+          "AWS Lambda",
+          "Amazon EC2",
+          "Amazon S3",
+          "Amazon RDS",
+          "API Gateway",
+          "AWS CloudWatch",
+          "IAM"
+        ]
+      },
+      "ci_cd_and_automation": {
+        "tools": [
+          "GitHub Actions"
+        ],
+        "capabilities": [
+          "Automated testing",
+          "Build pipelines",
+          "Deployment automation",
+          "Release management"
+        ]
+      },
+      "containerization_and_serverless": {
+        "tools": [
+          "Docker"
+        ],
+        "experience": [
+          "Containerizing applications",
+          "Deploying microservices with AWS Lambda",
+          "Using API Gateway for serverless APIs"
+        ]
+      },
+      "infrastructure_as_code": {
+        "tools": [
+          "Terraform (basic)",
+          "AWS CloudFormation (conceptual)"
+        ],
+        "skills": [
+          "IaC principles",
+          "Cloud infrastructure automation"
+        ]
+      },
+      "monitoring_security_maintenance": {
+        "tools": [
+          "AWS CloudWatch"
+        ],
+        "skills": [
+          "Performance monitoring",
+          "System logging",
+          "API security",
+          "Linux server hardening",
+          "Backup and recovery with S3 and RDS"
+        ]
+      },
+      "collaboration_and_source_control": {
+        "tools": [
+          "GitHub Enterprise",
+          "Linear"
+        ],
+        "skills": [
+          "Version control",
+          "Branching strategies (GitFlow, trunk-based)",
+          "Role-based repository access",
+          "Sprint and issue management"
+        ]
+      }
+    },
+    "project_management": [
+      "Linear"
+    ],
+    "monitoring_debugging": [
+      "Log analysis",
+      "System health checks",
+      "Database profiling"
+    ],
+    "databases": [
+      "MySQL",
+      "PostgreSQL"
+    ]
+  },
+  "professional_experience": [
+    {
+      "title": "Senior Developer/Engineer",
+      "company": "Test Company",
+      "duration": "January 2021 – Present",
+      "responsibilities": [
+        "Architected and implemented an end-to-end automated deployment system using AWS Lambda and GitHub Enterprise Actions.",
+        "Built and maintained a scalable backend architecture serving Android and Flutter-based apps."
+      ]
+    }
+  ],
+  "other_notable_work": [
+    {
+      "name": "Test Project",
+      "description": "Test description.",
+      "features": [
+        "Developed core features such as member directories, event RSVPs, secure sign-ins, and automated mailings."
+      ]
+    }
+  ],
+  "key_projects": [
+    {
+      "organization": "Test Company",
+      "projects": [
+        {
+          "name": "Test Project",
+          "description": "Developed and maintained a secure personal finance platform enabling users to send, receive, and manage funds with robust authentication and user profiling using Laravel and PostgreSQL.",
+          "impact": "Streamlined transaction flows and integrated multi-level security checks, resulting in a 40% reduction in failed transactions."
+        }
+      ]
+    },
+    {
+      "organization": "Another Company",
+      "projects": [
+        {
+          "name": "Loan Disbursement",
+          "description": "Built system to handle microloan disbursements, repayment schedules, and auto-deductions.",
+          "impact": "Improved recovery rate by 40% and reduced loan default incidents using automated risk scoring."
+        }
+      ]
+    }
+  ],
+  "certifications": [
+    "AWS Certified Solutions Architect - Associate (on going)"
+  ],
+  "work_environment": "Prefers clean, modular codebases with strong CI/CD practices.\nAdvocates for consistency in naming, capitalization, and professional documentation.\nComfortable working remotely with global teams.",
+  "hardware_environment": "2012 MacBook (installed Linux Mint to extend its lifespan for development purposes.)"
+}
