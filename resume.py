@@ -13,10 +13,12 @@ import os
 import uuid
 import mistune
 from bs4 import BeautifulSoup, NavigableString, Tag
+from docx.document import Document as DocumentObject
 
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
+
 
 # Load Gemini API key
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -75,63 +77,196 @@ def add_formatted_paragraph(doc, element):
         add_formatted_run(paragraph, child)
 
 
+def addPara(doc: DocumentObject, space=1, text="", style=None):
+    paragraph = doc.add_paragraph(text, style=style)
+    # paragraph.paragraph_format.line_spacing = 2
+    paragraph.paragraph_format.space_after = Pt(
+        space)  # or Pt(0) for no extra space
+    paragraph.paragraph_format.space_before = Pt(0)
+    return paragraph
+
+
 def markdown_to_docx(markdown_text, output_path):
     print(f"Converting markdown to docx: {output_path}")
 
-    html = mistune.markdown(markdown_text)
-    soup = BeautifulSoup(html, 'html.parser')
+    # html = mistune.markdown(markdown_text)
+    # print(html)
 
-    print("Parsed HTML content")
+    # soup = BeautifulSoup(html, 'html.parser')
+
+    # print("Parsed HTML content")
 
     print("Creating new Document to f{output_path}")
 
     doc = Document()
+    style = doc.styles['Normal']
+    style.font.name = 'Calibri'
+    style.font.size = Pt(12)
+    style.paragraph_format.space_after = Pt(0)
+    style.paragraph_format.space_before = Pt(0)
+    style.paragraph_format.line_spacing = 1
 
-    for element in soup.contents:
-        if isinstance(element, NavigableString):
-            doc.add_paragraph(str(element))
-            continue
+    for line in markdown_text.strip().splitlines():
 
-        # print(element.name)
+        if line.strip().startswith("***") and line.strip().endswith("***"):
+            paragraph = addPara(doc)
+            run = paragraph.add_run(line.strip().replace("***", ""))
+            run.bold = True
+            # run.font.size = Pt(15)
 
-        if element.name == 'h1':
-            doc.add_heading(element.get_text(), level=1)
-        elif element.name == 'h2':
-            doc.add_heading(element.get_text(), level=2)
-        elif element.name == 'h3':
-            doc.add_heading(element.get_text(), level=3)
-        elif element.name == 'ul':
-            for li in element.find_all('li', recursive=False):
-                doc.add_paragraph(li.get_text(), style='List Bullet')
-        elif element.name == 'ol':
-            for li in element.find_all('li', recursive=False):
-                doc.add_paragraph(li.get_text(), style='List Number')
-        elif element.name == 'blockquote':
-            p = doc.add_paragraph(f'"{element.get_text()}"')
-            p.paragraph_format.left_indent = Pt(20)
-            p.runs[0].italic = True
-        elif element.name == 'pre':
-            code_text = element.get_text()
-            doc.add_paragraph(code_text, style='Intense Quote')
-        elif element.name == 'p':
-            add_formatted_paragraph(doc, element)
+        elif "***" in line:
+            parts = line.split("***")
+            if len(parts) >= 3:
+                # parts[1] is the bold text, parts[2] is the rest
+                paragraph = addPara(doc)
+                run_bold = paragraph.add_run(parts[1] + " ")
+                run_bold.bold = True
+                # run_bold.font.size = Pt(15)
+                paragraph.add_run(parts[2].strip())
+
+        elif "**" in line:
+            parts = line.split("**")
+            if len(parts) >= 3:
+                # parts[1] is the bold text, parts[2] is the rest
+                paragraph = addPara(doc, 6)
+                run_bold = paragraph.add_run(parts[1] + " ")
+                run_bold.bold = True
+                run_bold.font.size = Pt(18)
+                paragraph.add_run(parts[2].strip())
+
+        elif line.strip().startswith("**") and line.strip().endswith("**"):
+            paragraph = addPara(doc, 6)
+            run = paragraph.add_run(line.strip().replace("**", ""))
+            run.bold = True
+            run.font.size = Pt(18)
+
+        elif line.strip().startswith("### "):
+            paragraph = addPara(doc, 3)
+            run = paragraph.add_run(line.replace("### ", "").strip())
+            run.bold = True
+            run.font.size = Pt(15)
+
+        elif line.strip().startswith("- "):
+            addPara(doc, 0, line.strip()[1:], style="List Bullet")
+        elif line.strip().startswith("---"):
+            addPara(doc, 6)
+        elif line.strip().startswith("_") and line.strip().endswith("_"):
+            paragraph = addPara(doc)
+            run = paragraph.add_run(line.strip().strip("_"))
+            run.italic = True
+
         else:
-            add_formatted_paragraph(doc, element)
+            doc.add_paragraph(line.strip())
+
+    # for element in soup.contents:
+    #     if isinstance(element, NavigableString):
+    #         doc.add_paragraph(str(element))
+    #         continue
+
+    #     # print(element.name)
+
+    #     if element.name == 'h1':
+    #         doc.add_heading(element.get_text(), level=1)
+    #     elif element.name == 'h2':
+    #         doc.add_heading(element.get_text(), level=2)
+    #     elif element.name == 'h3':
+    #         doc.add_heading(element.get_text(), level=3)
+    #     elif element.name == 'ul':
+    #         for li in element.find_all('li', recursive=False):
+    #             doc.add_paragraph(li.get_text(), style='List Bullet')
+    #     elif element.name == 'ol':
+    #         for li in element.find_all('li', recursive=False):
+    #             doc.add_paragraph(li.get_text(), style='List Number')
+    #     elif element.name == 'blockquote':
+    #         p = doc.add_paragraph(f'"{element.get_text()}"')
+    #         p.paragraph_format.left_indent = Pt(20)
+    #         p.runs[0].italic = True
+    #     elif element.name == 'pre':
+    #         code_text = element.get_text()
+    #         doc.add_paragraph(code_text, style='Intense Quote')
+    #     elif element.name == 'p':
+    #         add_formatted_paragraph(doc, element)
+    #     else:
+    #         add_formatted_paragraph(doc, element)
 
     doc.save(output_path)
     print(f"Saved docx to {output_path}")
 
 
 def sendToGemini(description, company_name=None) -> str | None:
+    format = """
+Generate a resume in with the following structure and formatting without quoting:
 
+---
+**[Full Name]**
+
+***[Job Title]***
+
+[Phone Number] | [Email Address] | |[Linkedin] | [Github] | Remote
+
+---
+
+### Summary
+
+A short professional summary (3–5 sentences) outlining years of experience, domain expertise, core technologies, and what sets you apart professionally.
+
+---
+
+### Core Skills and Expertise
+
+***Programming Languages:*** [e.g. Lua, C++, Python, JavaScript, JSON, Java, TypeScript, Go]  
+***Frameworks & Libraries:*** [e.g. React, Node.js, Qt, Angular, Vue.js, Express, Flask]  
+***Development Tools:*** [e.g. Git, JIRA, Docker, Jenkins, VSCode]  
+***Web & Mobile Technologies:*** [e.g. RESTful APIs, GraphQL, HTML5, CSS3, Electron]  
+***Software & Systems:*** [e.g. Q-SYS, AWS, Azure, Linux, Agile, CI/CD Pipelines]  
+***Community & Engagement:*** [e.g. Blogging, Mentorship, Community Management, Speaking]
+
+---
+
+### Education
+
+***[Degree]***   
+
+[Start Date] – [End Date]
+---
+
+### Experience
+
+***[Company Name]***
+
+***[Job Title]***
+
+_[Start Date] – [End Date]_
+
+- Bullet point for key responsibility or achievement.
+- Use action verbs to start each line.
+- Focus on impact, results, and technologies used.
+
+_Repeat as needed for each role._
+
+---
+
+### Additional Skills
+
+***Leadership & Team Management:*** [Details]  
+***Agile Methodologies:*** [Details]  
+***Communication & Client Engagement:*** [Details]  
+***Problem-Solving & Innovation:*** [Details]
+
+---
+
+### Key Projects
+***[Organization]***
+
+- Bullet point for each project.
+- Use action verbs to start each line.
+- Focus on impact, results, and technologies used.
+
+"""
     prompt = (
-        "Write a resume matching the requirements and for the above job description in text "
-        "with no additional tips, include company's name and job role, you can use my professional "
-        "informations:\n\n" + json.dumps(profile) +
-        "\n\n to tailor the resume. You are allowed to tweak my skills and experience details to suit "
-        "the job description. Do not include phone number, linkedin or any social link, include github link.\n\n"
-        "Note that the text should be well formatted for google docs pasting and make sure the resume is "
-        "optimized for automatic resume reviewer."
+        "Write a resume matching the requirements and for the above job description in text with no additional tips, include company's name and job role, using my professional informations:\n\n" + json.dumps(profile) +
+        "\n\nto tailor the resume. You are allowed to tweak my skills and experience details to suit "
+        "the job description. You are allowed to tweak my skills and experience details to suit the job description.\n\n" + format
     )
 
     payload = {
@@ -197,6 +332,11 @@ def sendToGemini(description, company_name=None) -> str | None:
 
 
 def main():
+    start_id = "b01153ff-fa37-4092-9e27-d5293ff91480"
+
+    end_id = None
+
+    id_started = False
 
     path = 'jobs.json'
     all_jobs = {}
@@ -213,6 +353,19 @@ def main():
     for index in all_jobs:
         current_count += 1
         print(f"{current_count}/{job_count} - {index}")
+
+        if start_id and index != start_id and not id_started:
+            # print(f"Skipping job {uid} until start_id {start_id} is found.")
+            continue
+
+        if end_id and index == end_id:
+            print(f"Found end_id {end_id}, stopping processing.")
+            break
+
+        else:
+            if not id_started:
+                print(f"Found start_id {start_id}, starting to process jobs.")
+                id_started = True
 
         job = all_jobs[index]
         title = job["title"].strip()

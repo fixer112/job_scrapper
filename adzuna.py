@@ -13,20 +13,22 @@ APP_ID = os.getenv("ADZUNA_APP_ID")
 APP_KEY = os.getenv("ADZUNA_APP_KEY")
 
 API_URL_TEMPLATE = "https://api.adzuna.com/v1/api/jobs/us/search/{page}"
-PAGE_SIZE = 20
-MAX_NEW = 100
+PAGE_SIZE = 10
+MAX_NEW = 10
 JSON_FILE = "jobs.json"
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36"
 )
 
+ONLY_EASY_APPLY = False
+
 BASE_PARAMS = {
     "app_id": APP_ID,
     "app_key": APP_KEY,
     "results_per_page": PAGE_SIZE,
     "what": "backend developer",  # php, laravel , web developer",'backend developer',
-    "where": "remote",
+    # "where": "remote",
     "remote_only": 1,
     "salary_min": 50000,
     "content-type": "application/json",
@@ -79,10 +81,16 @@ while new_count < MAX_NEW:
         break
 
     for job in results:
+        easy_apply = False
         if new_count >= MAX_NEW:
             break
 
         job_url = job.get("redirect_url")
+
+        if "/details/" not in job_url:
+            print(f"▶ Skipping non-detail URL: {job_url}")
+            continue
+
         if not job_url or job_url in existing_urls:
             print(f"▶ Skipping already processed job: {job_url}")
             continue
@@ -113,10 +121,23 @@ while new_count < MAX_NEW:
 
         for section in page_soup.find_all("section"):
             text = section.get_text(" ", strip=True)
+            if "easy apply" in text.lower():
+                easy_apply = True
+            else:
+                if ONLY_EASY_APPLY:
+                    print(
+                        f"▶ Skipping section without 'easy apply': {text[:50]}…")
+                    continue
+
             if first10 in text:
                 for br in section.find_all("br"):
                     br.replace_with("\n")
                 description = section.get_text("\n", strip=True)
+                break
+
+            if "Sorry, this job is not available in your region" in text:
+                print(
+                    f"▶ Skipping job not available in your region: {job_url}")
                 break
 
         if not description:
@@ -124,8 +145,9 @@ while new_count < MAX_NEW:
             description = "\n".join(p.get_text(strip=True) for p in ps)
 
         job_id = str(uuid.uuid4())
+        added_title = "(EASY APPLY)" if easy_apply else ""
         all_jobs[job_id] = {
-            "title": title,
+            "title": f"{title} {added_title}",
             "company": company,
             "description": description,
             "url": job_url,
