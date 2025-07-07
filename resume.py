@@ -205,7 +205,7 @@ Generate a resume in with the following structure and formatting without quoting
 
 ***[Job Title]***
 
-[Phone Number] | [Email Address] | |[Linkedin] | [Github] | Remote
+[Email Address] | [Github] | Remote
 
 ---
 
