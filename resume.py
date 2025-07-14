@@ -223,6 +223,7 @@ A short professional summary (3–5 sentences) outlining years of experience, do
 ***Web & Mobile Technologies:*** [e.g. RESTful APIs, GraphQL, HTML5, CSS3, Electron]  
 ***Software & Systems:*** [e.g. Q-SYS, AWS, Azure, Linux, Agile, CI/CD Pipelines]  
 ***Community & Engagement:*** [e.g. Blogging, Mentorship, Community Management, Speaking]
+***Test:*** [e.g Phpunit, pest, jest]
 
 ---
 
@@ -267,9 +268,10 @@ _Repeat as needed for each role._
 
 """
     prompt = (
-        "Write a resume matching the requirements and for the above job description in text with no additional tips, include company's name and job role, using my professional informations:\n\n" + json.dumps(profile) +
-        "\n\nto tailor the resume. You are allowed to tweak my skills and experience details to suit "
-        "the job description. You are allowed to tweak my skills and experience details to suit the job description.\n\n" + format
+        "Write a resume matching the requirements and for the above job description in text with no additional tips, using my professional informations:\n\n" + json.dumps(profile) +
+        "\n\nto tailor the resume.\n"
+        +
+        "You are allowed to tweak my skills and experience details to suit the job description.\n\n" + format
     )
 
     payload = {
@@ -284,6 +286,7 @@ _Repeat as needed for each role._
     )
 
     result = response.json()
+    # print(result)
     reply = result.get('candidates', [{}])[0].get('content', {}).get(
         'parts', [{}])[0].get('text', None)
 
