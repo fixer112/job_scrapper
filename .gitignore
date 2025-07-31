@@ -6,5 +6,5 @@ get-pip.py
 *.csv
 *.json
 test.py
-__pycache__/resume.cpython-313.pyc
 .DS_Store
+__pycache__/*
